@@ -8,7 +8,7 @@ verify_ssl = true
 [packages]
 gmpy2 = "*"
 fastecdsa = "*"
-pycrypto = {git = "https://github.com/dlitz/pycrypto"}
+pycryptodome = "*"
 
 [requires]
 python_version = "3.7.6"

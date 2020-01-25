@@ -16,5 +16,5 @@ docker run -it --rm -v $(pwd):/chainoffools chainoffools
 ## Forging certificate
 
 ```bash
-pipenv run python gen-key.py
+./gen-keys.sh
 ```

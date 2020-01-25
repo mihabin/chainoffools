@@ -23,11 +23,13 @@ COPY ./tools/install-pipenv.sh /root/
 RUN chmod +x /root/install-pipenv.sh
 RUN /root/install-pipenv.sh 3.7.6
 
-RUN apt-get update && \
-    apt-get install -y libmpc-dev
+WORKDIR /root
+RUN curl -O http://www.tbs-x509.com/USERTrustECCCertificationAuthority.crt
 
 WORKDIR /chainoffools
 
 COPY . .
 
 RUN pipenv update
+
+CMD [ "./gen-keys.sh" ]
