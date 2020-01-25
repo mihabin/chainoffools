@@ -24,11 +24,11 @@ keyfile = PEM.decode(f.read())
 #print(hexlify(keyfile[0]))
 f.close()
 seq_der = DerSequence()
-der = seq_der.decode(keyfile[0])
+seq_der.decode(keyfile[0])
 
 # Replace private key
 octet_der = DerOctetString(privkey)
-der[1] = octet_der.encode()
+seq_der[1] = octet_der.encode()
 
 # Replace public key
 #print(hexlify(der[3]))
