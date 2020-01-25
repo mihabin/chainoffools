@@ -7,7 +7,7 @@ path = "/root/USERTrustECCCertificationAuthority.crt"
 with open(path, "r") as f:
     cert = f.read()
 
-ca =crypto.load_certificate(crypto.FILETYPE_PEM, cert)
+ca = crypto.load_certificate(crypto.FILETYPE_PEM, cert)
 ca_key = ca.get_pubkey()
 pub_key = crypto.dump_publickey(crypto.FILETYPE_PEM, ca_key)
 
