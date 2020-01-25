@@ -14,13 +14,20 @@ ENV PYTHONUNBUFFERED 1
 ENV PYENV_ROOT /root/.pyenv
 ENV PATH /root/.pyenv/shims:/root/.pyenv/bin:$PATH
 
-ARG PYTHON_VERSION
+ARG PYTHON_VERSION=3.7.6
 ENV PYTHON_CONFIGURE_OPTS "--enable-shared"
-RUN pyenv install --force 3.7
+RUN pyenv install --force 3.7.6
+RUN pyenv global 3.7.6
 
 COPY ./tools/install-pipenv.sh /root/
 RUN chmod +x /root/install-pipenv.sh
-RUN /root/install-pipenv.sh 3.7
+RUN /root/install-pipenv.sh 3.7.6
 
-RUN apt-get install -y libmpc-dev
+RUN apt-get update && \
+    apt-get install -y libmpc-dev
 
+WORKDIR /chainoffools
+
+COPY . .
+
+RUN pipenv update

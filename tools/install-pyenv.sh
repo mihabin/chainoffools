@@ -17,6 +17,7 @@ apt-get install -qq \
     libncurses5-dev \
     xz-utils \
     tk-dev \
+    libmpc-dev \
 &> /dev/null || exit 1
 
 rm -rf /var/lib/apt/lists/* || exit 1
