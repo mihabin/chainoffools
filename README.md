@@ -13,4 +13,8 @@ docker build -t chainfofools .
 docker run -it --rm -v $(pwd):/chainoffools chainoffools
 ```
 
-## Foraging certificate
+## Forging certificate
+
+```bash
+pipenv run python gen-key.py
+```
