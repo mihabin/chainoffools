@@ -10,7 +10,6 @@ gmpy2 = "*"
 fastecdsa = "*"
 pycryptodome = "*"
 pylint = "*"
-unittest = "*"
 
 [requires]
 python_version = "3.7.6"
