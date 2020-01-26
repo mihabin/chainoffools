@@ -22,7 +22,7 @@ jobs:
     - name: Lint with pylint
       run: |
         pipenv install pylint
-        pipenv run pylint gen-key.py
+        pipenv run pylint gen_key.py
     - name: Test with unittest
       run: |
         pipenv install unittest
