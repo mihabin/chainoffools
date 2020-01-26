@@ -21,8 +21,8 @@ jobs:
         pipenv update
     - name: Lint with pylint
       run: |
-        pip install pylint
-        pylint gen-key.py
+        pipenv install pylint
+        pipenv run pylint gen-key.py
     - name: Test with unittest
       run: |
-        pip install unittest
+        pipenv install unittest
