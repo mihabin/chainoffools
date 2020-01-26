@@ -25,4 +25,4 @@ jobs:
         pipenv run pylint gen_key.py
     - name: Test with unittest
       run: |
-        pipenv install unittest
+        pipenv run python -m unittest
