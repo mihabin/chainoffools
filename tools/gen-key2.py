@@ -1,7 +1,6 @@
 from OpenSSL import crypto
 
 # read file
-
 # path = "/root/MicrosoftECCProductRootCertificateAuthority.cer"
 path = "/root/USERTrustECCCertificationAuthority.crt"
 with open(path, "r") as f:
