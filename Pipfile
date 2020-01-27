@@ -10,7 +10,7 @@ gmpy2 = "*"
 fastecdsa = "*"
 pycryptodome = "*"
 pylint = "*"
-pyopenssl = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.7.6"

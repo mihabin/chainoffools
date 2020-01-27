@@ -1,19 +1,23 @@
-from OpenSSL import crypto
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ec import derive_private_key
+from cryptography.hazmat.primitives.serialization import Encoding 
+from cryptography.hazmat.primitives.serialization import PublicFormat 
+with open('/root/MicrosoftECCProductRootCertificateAuthority.cer', 'rb') as f:
+    raw_cert = f.read()
+cert       = x509.load_pem_x509_certificate(raw_cert, default_backend())
+public_key = cert.public_key()
+# print(public_key.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo))
+# b'-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAExxEWKnYdVo6+uWJl1MPOtPDDMOyPbddu\nObzISauruONDeNWBBl3vx32fztazkHXeDLCQ3iO6yNE+Z+AZqRuGMR5fNC3uF/0V\n+34nijKh6smPyX4Yyy87LEh6fab0AQes\n-----END PUBLIC KEY-----\n'
+curve      = public_key.curve
+private_value = 1
+private_key   = derive_private_key(private_value, curve, default_backend())
 
-# read file
-# path = "/root/MicrosoftECCProductRootCertificateAuthority.cer"
-path = "/root/USERTrustECCCertificationAuthority.crt"
-with open(path, "r") as f:
-    cert = f.read()
-
-ca = crypto.load_certificate(crypto.FILETYPE_PEM, cert)
-ca_key = ca.get_pubkey()
-pub_key = crypto.dump_publickey(crypto.FILETYPE_PEM, ca_key)
-print(pub_key)
-
-# so far this matches main.rb
-# the issue that I am encountering is the private key and group
-# https://www.pyopenssl.org/en/stable/api/crypto.html#pkey-objects
-# https://ruby.github.io/openssl/OpenSSL/PKey/EC.html#method-i-public_key
-
-pubkey = b"1aac545aa9f96823e77ad5246f53c65ad84babc6d5b6d1e67371aedd9cd60c61fddba08903b80514ec57ceee5d3fe221b3cef7d48a79e0a3837e2d97d061c4f199dc259163ab7f30a3b470e2c7a1339cf3bf2e5c53b15fb37d327f8a34e37979"
+pem = private_key.private_bytes(
+    encoding             = serialization.Encoding.PEM,
+    format               = serialization.PrivateFormat.TraditionalOpenSSL,
+    encryption_algorithm = serialization.NoEncryption()
+)
+with open('spoofed_ca.key', 'wb') as f:
+    f.write(pem)
