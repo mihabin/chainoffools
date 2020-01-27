@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Add this file to .git/hooks/ and change mode to execute with the following
 #
-#   mv tools/pre-commit .git/hooks/
+#   cp tools/pre-commit .git/hooks/
 #   chmod +x .git/hooks/pre-commit
 
 # For each changed python file run Isort Black 
@@ -15,7 +15,7 @@ do
     echo "   Black"
     pipenv run black -l 120 -t py37 $FILE &> /dev/null
     echo "   Isort"
-    pipenv run isort -y $FILE
+    pipenv run isort -y $FILE &> /dev/null
   fi
 done
 

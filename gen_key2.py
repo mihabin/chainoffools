@@ -3,6 +3,7 @@
 gen_key2 module is an attempt a reproducing the https://github.com/ollypwn/CurveBall
 ruby PoC in python as a CLI
 """
+
 import click
 
 from cryptography import x509
