@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Add this file to .git/hooks/
+
+# For each changed python file run Isort Black 
+for FILE in $(git status --short | cut -d 'M' -f 2)
+do
+  if [[ $FILE == *.py ]]; then
+    if [[ $FILE == "__init__.py" ]]; then
+      continue
+    fi
+    pipenv run black -l 120 -t py37 $FILE
+    pipenv run isort -y $FILE
+  fi
+done
+
+# If any changes from black and isort add to commit.
+echo "${GREEN}Git add all${NC}"
+git add *
+
+# For each changed python file run pylint
+for FILE in $(git status --short | cut -d 'M' -f 2)
+do
+  if [[ $FILE =~ \.py$ ]]; then
+    pipenv run pylint $FILE
+  fi
+done
+exit 0
