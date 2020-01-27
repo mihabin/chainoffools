@@ -9,12 +9,16 @@ docker build -t chainoffools .
 
 ## Docker container
 
+To run the container with a bash shell
+
 ```bash
-docker run -it --rm -v $(pwd):/chainoffools chainoffools
+docker run -it --rm -v $(pwd):/chainoffools chainoffools bash
 ```
 
 ## Forging certificate
 
+To forge certificate using default settings
+
 ```bash
-./gen-keys.sh
+docker run -it --rm -v $(pwd):/chainoffools chainoffools
 ```
