@@ -25,8 +25,8 @@ RUN /root/install-pipenv.sh 3.7.6
 
 WORKDIR /root
 RUN curl -O http://www.tbs-x509.com/USERTrustECCCertificationAuthority.crt && \
-    curl -O https://raw.githubusercontent.com/ollypwn/CurveBall/master/MicrosoftECCProductRootCertificateAuthority.cer
-
+    curl -O https://raw.githubusercontent.com/ollypwn/CurveBall/master/MicrosoftECCProductRootCertificateAuthority.cer 
+    
 WORKDIR /chainoffools
 
 COPY . .
@@ -34,4 +34,4 @@ COPY . .
 RUN pipenv update && \
     chmod +x gen-keys.sh
 
-CMD [ "./gen-keys.sh" ]
+CMD ["./gen-keys.sh" ]

@@ -4,7 +4,7 @@ I give full credit to https://github.com/kudelskisecurity/chainoffools. This for
 
 ## Build Docker Image
 ```bash
-docker build -t chainfofools .
+docker build -t chainoffools .
 ```
 
 ## Docker container
