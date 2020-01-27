@@ -23,10 +23,9 @@ COPY ./tools/install-pipenv.sh /root/
 RUN chmod +x /root/install-pipenv.sh
 RUN /root/install-pipenv.sh 3.7.6
 
-WORKDIR /root
-RUN curl -O http://www.tbs-x509.com/USERTrustECCCertificationAuthority.crt && \
-    curl -O https://raw.githubusercontent.com/ollypwn/CurveBall/master/MicrosoftECCProductRootCertificateAuthority.cer 
-    
+COPY ./tools/MicrosoftECCProductRootCertificateAuthority.cer /root/
+COPY ./tools/USERTrustECCCertificationAuthority.crt /root/
+
 WORKDIR /chainoffools
 
 COPY . .
