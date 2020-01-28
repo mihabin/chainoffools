@@ -11,7 +11,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends.openssl.ec import _EllipticCurvePublicKey
 from cryptography.hazmat.backends.openssl.backend import Backend
-from cryptography.hazmat.primitives.asymmetric.ec import derive_private_key
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import PublicFormat
 
