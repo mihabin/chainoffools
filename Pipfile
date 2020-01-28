@@ -6,12 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-gmpy2 = "*"
-fastecdsa = "*"
-pycryptodome = "*"
-pylint = "*"
-cryptography = "*"
-click = "*"
 
 [requires]
-python_version = "3.7.6"
+python_version = "3.7"

