@@ -49,6 +49,8 @@ To test that the patch has been successfully installed run
 (get-winevent -listprovider Microsoft-Windows-Audit-CVE).events
 ```
 
+You should see the following 
+
 ```powershell
 Id          : 1
 Version     : 0
