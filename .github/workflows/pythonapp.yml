@@ -28,5 +28,4 @@ jobs:
         pylint gen_key.py
     - name: Test with unittest
       run: |
-        pip install unittest
         python -m unittest tests/test_gen_key.py
