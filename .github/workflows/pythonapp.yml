@@ -17,12 +17,16 @@ jobs:
       run: |
         sudo apt-get install -y libmpc-dev 
         python -m pip install --upgrade pip
-        pip install pipenv 
-        pipenv update
+        pip install click
+        pip install fastecdsa
+        pip install gmpy2
+        pip install pycryptodome
+       
     - name: Lint with pylint
       run: |
-        pipenv install pylint
-        pipenv run pylint gen_key.py
+        pip install pylint
+        pylint gen_key.py
     - name: Test with unittest
       run: |
-        pipenv run python -m unittest tests/test_gen_key.py
+        pip install unittest
+        python -m unittest tests/test_gen_key.py
