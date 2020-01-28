@@ -20,7 +20,17 @@ docker run -it --rm -v $(pwd):/app -w /app cve-2020-0601 bash
 To forge certificate using default settings
 
 ```bash
-docker run -it --rm -v $(pwd):/app -w /app cve-2020-0601
+./gen-key.sh
+```
+
+This will create `cert.key` and `cert_chain.crt`
+
+### 💁 Server
+
+To use the certificates and keys you just created run the server 
+
+```bash
+python server.py
 ```
 
 ## ☣️ Hazardou
