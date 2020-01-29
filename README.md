@@ -1,6 +1,6 @@
 # CVE-2020-0601
 
-I give full credit to https://github.com/kudelskisecurity/chainoffools. This fork just adds a Dockerfile which creates a pre-configured environment.
+I give full credit to https://github.com/kudelskisecurity/chainoffools. This fork just adds a Dockerfile which creates a pre-configured environment and a bash script that creates the certificates and key. I have also included a simple Python server and client to test the certificates. 
 
 ## 💿 Build Docker Image
 ```bash
